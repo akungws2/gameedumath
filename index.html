@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Froggy Math Jumps</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap');
+
+        :root {
+            --primary: #4ade80;
+            --primary-dark: #22c55e;
+            --secondary: #3b82f6;
+            --water: #0ea5e9;
+            --sky: #bae6fd;
+            --danger: #ef4444;
+            --text: #1e293b;
+            --panel-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--sky);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* UI Overlays */
+        #main-menu, #how-to-play, #settings {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, var(--sky) 0%, var(--water) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        .title-container h1 {
+            font-size: 4rem;
+            color: #fff;
+            text-shadow: 4px 4px 0 var(--primary-dark), -2px -2px 0 var(--primary-dark), 2px -2px 0 var(--primary-dark), -2px 2px 0 var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .main-logo {
+            width: 110%; /* Melebarkan gambar */
+            max-width: 1000px; /* Batas maksimal diperbesar */
+            margin-top: 50px; 
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.3));
+            transform: scale(1.15); /* Tambahan perbesaran visual */
+        }
+
+        .title-container h2 {
+            font-size: 1.5rem;
+            color: #fff;
+            background: var(--secondary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 0 #2563eb;
+            margin-bottom: 10px; /* Memberi jarak dengan logo di bawahnya */
+        }
+
+        .credits {
+            margin-top: -10px;
+            margin-bottom: 15px;
+            font-weight: 800;
+            color: #1e3a8a;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .credits:hover, .credits:active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Menu Layout Baru */
+        .menu-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            width: 100%;
+            max-width: 1400px; /* Kontainer diperlebar agar logo punya ruang lebih */
+            padding: 20px;
+            gap: 40px;
+        }
+
+        .menu-left {
+            flex: 1.5; /* Memberi ruang lebih besar untuk sisi kiri (logo) dibanding sisi kanan */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .menu-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-mascot {
+            width: 100%;
+            max-width: 380px;
+            margin-top: 20px;
+            animation: floatMascot 3s ease-in-out infinite;
+            filter: drop-shadow(0 20px 15px rgba(0,0,0,0.3));
+        }
+
+        @keyframes floatMascot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .menu-panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menu-panel h3 {
+            color: white;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0 var(--text);
+            letter-spacing: 2px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .menu-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .menu-mascot { max-width: 200px; }
+            .menu-panel { padding: 20px; }
+            .title-container h1 { font-size: 3rem; }
+        }
+
+        .btn {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            padding: 1rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .btn-green { background: var(--primary); box-shadow: 0 6px 0 var(--primary-dark); }
+        .btn-blue { background: var(--secondary); box-shadow: 0 6px 0 #2563eb; }
+        .btn-orange { background: #f59e0b; box-shadow: 0 6px 0 #d97706; }
+        .btn-red { background: var(--danger); box-shadow: 0 6px 0 #b91c1c; }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+        }
+
+        /* Global Controls */
+        .global-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 200;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.8);
+            border: 2px solid var(--text);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .icon-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        /* Game Layout System */
+        #game-wrapper {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            gap: 5px;
+            padding: 5px;
+            background-color: #0c4a6e;
+        }
+
+        .layout-solo { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+        
+        /* Jarak antar daun lebih lebar saat mode solo (layar penuh) */
+        .layout-solo .platforms-container {
+            gap: 40px;
+        }
+
+        .layout-duel { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+        .layout-squad { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            .layout-duel { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+        }
+
+        /* Individual Player Panel */
+        .player-panel {
+            position: relative;
+            background: linear-gradient(180deg, var(--sky) 0%, #7dd3fc 40%, var(--water) 80%, #0369a1 100%);
+            border: 4px solid #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HUD (Heads Up Display) */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--panel-bg);
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .hud-left, .hud-right { display: flex; flex-direction: column; gap: 5px; }
+        .hud-right { align-items: flex-end; }
+        
+        .player-label { font-weight: bold; color: var(--secondary); font-size: 0.9rem; }
+        .score-box { font-family: 'Fredoka One'; font-size: 1.2rem; color: #f59e0b; }
+        .lives { font-size: 1.2rem; letter-spacing: 2px; }
+        
+        .timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--primary);
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        /* Game Area */
+        .game-area {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-box {
+            margin-top: 15px;
+            background: #fff;
+            border: 4px solid var(--secondary);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-family: 'Fredoka One';
+            font-size: 2rem;
+            color: var(--text);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 5;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        /* Platforms & Frog */
+        .platforms-container {
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            gap: 15px;
+            padding: 20px 0 60px 0;
+        }
+
+        .platform {
+            width: 160px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            border-bottom: 8px solid var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One';
+            font-size: 1.8rem;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: inset 0 -5px 0 rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        /* Leaf details */
+        .platform::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: var(--primary);
+            right: -10px;
+            border-radius: 50%;
+            clip-path: polygon(100% 50%, 0 0, 0 100%);
+            background-color: var(--sky);
+            top: 0;
+        }
+
+        .platform:active { transform: scale(0.95); }
+        .platform.disabled { pointer-events: none; opacity: 0.8; }
+
+        /* Base Platform untuk tempat pijakan awal katak */
+        .base-platform {
+            position: absolute;
+            bottom: 25px;
+            width: 150px;
+            height: 55px;
+            background: var(--primary);
+            border-radius: 50%;
+            border-bottom: 8px solid var(--primary-dark);
+            z-index: 5;
+            box-shadow: inset 0 -5px 0 rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.2);
+        }
+        
+        .base-platform::after {
+            content: '';
+            position: absolute;
+            width: 35px;
+            height: 55px;
+            right: -5px;
+            border-radius: 50%;
+            clip-path: polygon(100% 50%, 0 0, 0 100%);
+            background-color: var(--sky);
+            top: 0;
+        }
+
+        .frog {
+            position: absolute;
+            bottom: 45px;
+            width: 80px;
+            height: auto;
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            filter: drop-shadow(0 10px 5px rgba(0,0,0,0.3));
+        }
+
+        /* Modals inside player panels */
+        .panel-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes jumpUp {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-80px) scale(1.2); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fallSink {
+            0% { transform: translateY(0) scale(1) rotate(0deg); }
+            20% { transform: translateY(-30px) scale(1.1) rotate(15deg); }
+            100% { transform: translateY(200px) scale(0.5) rotate(180deg); opacity: 0; }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 10px #fff, inset 0 -5px 0 rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 0 30px #fde047, inset 0 -5px 0 rgba(0,0,0,0.1); }
+            100% { box-shadow: 0 0 10px #fff, inset 0 -5px 0 rgba(0,0,0,0.1); }
+        }
+
+        .anim-jump { animation: jumpUp 0.5s ease; }
+        .anim-fall { animation: fallSink 0.8s forwards ease-in; }
+        .anim-glow { animation: glow 0.5s; background: #fde047 !important; color: #b45309 !important; border-bottom-color: #d97706 !important;}
+        
+        .platform.wrong {
+            background: #ef4444; border-bottom-color: #b91c1c;
+            transform: scale(0);
+            transition: transform 0.3s ease-in;
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 15;
+            font-size: 1.5rem;
+            animation: particleAnim 1s forwards;
+        }
+        @keyframes particleAnim {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* Floating text */
+        .floating-text {
+            position: absolute;
+            color: #fde047;
+            font-family: 'Fredoka One';
+            font-size: 2rem;
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
+            z-index: 20;
+            animation: floatUp 1s forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+
+        /* Splash Effect Canvas */
+        .splash-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 12;
+            overflow: hidden;
+        }
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: rgba(255,255,255,0.8);
+            top: -30px;
+            opacity: 0;
+            animation: rain linear forwards;
+        }
+        @keyframes rain {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(120vh); opacity: 1; }
+        }
+
+        /* Ripple Effect (Gelombang Air) */
+        .ripple {
+            position: absolute;
+            width: 80px; height: 30px;
+            border: 3px solid #bae6fd;
+            border-radius: 50%;
+            bottom: 20px; left: 50%;
+            transform: translate(-50%, 50%) scale(0);
+            pointer-events: none;
+            z-index: 9;
+            animation: rippleAnim 1.2s ease-out forwards;
+        }
+        @keyframes rippleAnim {
+            0% { transform: translate(-50%, 50%) scale(0.2); opacity: 1; border-width: 4px; }
+            100% { transform: translate(-50%, 50%) scale(3); opacity: 0; border-width: 0px; }
+        }
+
+        /* Grass Layer (Rumput Bergoyang) */
+        .grass-layer {
+            position: absolute;
+            bottom: -5px; left: -5%; width: 110%; height: 40px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            z-index: 16; pointer-events: none;
+        }
+        .grass-blade {
+            width: 15px; height: 100%;
+            background: #22c55e;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transform-origin: bottom center;
+            animation: sway 2s infinite alternate ease-in-out;
+        }
+        .grass-blade:nth-child(2n) { animation-duration: 2.3s; animation-direction: alternate-reverse; height: 80%; background: #16a34a; }
+        .grass-blade:nth-child(3n) { animation-duration: 2.7s; animation-delay: 0.3s; height: 90%; background: #15803d; }
+        @keyframes sway {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+
+        /* Modals */
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            color: var(--text);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 { margin-bottom: 15px; color: var(--secondary); }
+        .modal-content p, .modal-content li { font-size: 1.1rem; text-align: left; margin-bottom: 10px; }
+        .modal-content ul { padding-left: 20px; margin-bottom: 20px; }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Global Controls -->
+    <div class="global-controls">
+        <button class="icon-btn" id="btn-audio" title="Toggle Sound">🔊</button>
+        <button class="icon-btn" id="btn-fullscreen" title="Fullscreen">⛶</button>
+        <button class="icon-btn hidden" id="btn-home" title="Kembali ke Menu">🏠</button>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <div class="menu-container">
+            <!-- Bagian Kiri: Judul dan Gambar -->
+            <div class="menu-left">
+                <div class="title-container">
+                    <img src="https://imgur.com/F6tGhBd.png" alt="Froggy Math Jumps Logo" class="main-logo"><br>
+                    <a href="https://www.instagram.com/layalil__/" target="_blank" rel="noopener noreferrer" class="credits">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e1306c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                        Karya : Nurul Layalil A'dadiyyah
+                    </a><br>
+                    <h2>Belajar Matematika Asyik</h2>
+                </div>
+                <img src="https://imgur.com/jTMKdSb.png" alt="Frog Mascot" class="menu-mascot">
+            </div>
+
+            <!-- Bagian Kanan: Panel Tombol -->
+            <div class="menu-right">
+                <div class="menu-panel">
+                    <h3 class="brand-font">PILIH MODE</h3>
+                    <div class="menu-buttons">
+                        <button class="btn btn-green" onclick="app.startGame('solo')">👤 SOLO MODE</button>
+                        <button class="btn btn-blue" onclick="app.startGame('duel')">⚔️ DUEL MODE</button>
+                        <button class="btn btn-orange" onclick="app.startGame('squad')">👥 SQUAD MODE</button>
+                        <button class="btn btn-red" onclick="document.getElementById('how-to-play').classList.remove('hidden')">❓ CARA BERMAIN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="how-to-play" class="hidden">
+        <div class="modal-content">
+            <h2>Cara Bermain 🎮</h2>
+            <ul>
+                <li>Lihat soal matematika di bagian atas layar.</li>
+                <li>Pilih daun teratai yang memiliki jawaban yang <b>benar</b>.</li>
+                <li>Waktu menjawab hanya <b>15 detik</b> per soal!</li>
+                <li>Jika benar, katak melompat dan mendapat poin (+10). Ada bonus combo!</li>
+                <li>Jika salah atau waktu habis, katak jatuh dan nyawa berkurang (-1).</li>
+                <li>Kumpulkan skor tertinggi dan jangan sampai tenggelam!</li>
+            </ul>
+            <button class="btn btn-blue" style="width:100%" onclick="document.getElementById('how-to-play').classList.add('hidden')">Mengerti!</button>
+        </div>
+    </div>
+
+    <!-- Game Wrapper -->
+    <div id="game-wrapper" class="hidden layout-solo">
+        <!-- Player panels will be injected here dynamically -->
+    </div>
+
+<script>
+/**
+ * Audio Synthesizer (No external files needed)
+ */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let soundEnabled = true;
+
+const sfx = {
+    playTone: (freq, type, duration, vol=0.1) => {
+        if(!soundEnabled) return;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    },
+    correct: () => {
+        // Suara seru (Arpeggio naik yang cepat / Level-up effect)
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Nada C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+            setTimeout(() => sfx.playTone(freq, 'sine', 0.15, 0.15), i * 80);
+        });
+        // Tambahan nada tinggi gemerincing (sparkle) di akhir
+        setTimeout(() => sfx.playTone(1567.98, 'triangle', 0.4, 0.1), 320);
+    },
+    wrong: () => {
+        sfx.playTone(200, 'sawtooth', 0.3, 0.2);
+        setTimeout(() => sfx.playTone(150, 'sawtooth', 0.4, 0.2), 150);
+    },
+    jump: () => sfx.playTone(400, 'triangle', 0.1),
+    gameOver: () => {
+        [300, 250, 200, 150].forEach((freq, i) => {
+            setTimeout(() => sfx.playTone(freq, 'square', 0.4), i * 300);
+        });
+    }
+};
+
+/**
+ * Math Generator Logic (Adaptive Difficulty based on Score)
+ */
+class MathGenerator {
+    static generate(score) {
+        let maxNum = 20; // Easy
+        if (score > 50) maxNum = 50; // Medium
+        if (score > 150) maxNum = 100; // Hard
+
+        const ops = ['+', '-', '*', '/'];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        let num1, num2, answer;
+        let isDivision = false;
+
+        switch(op) {
+            case '+':
+                num1 = Math.floor(Math.random() * maxNum) + 1;
+                num2 = Math.floor(Math.random() * maxNum) + 1;
+                answer = num1 + num2;
+                break;
+            case '-':
+                num1 = Math.floor(Math.random() * maxNum) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1; // Ensure no negative
+                answer = num1 - num2;
+                break;
+            case '*':
+                let limit = maxNum <= 20 ? 10 : (maxNum <= 50 ? 12 : 20);
+                num1 = Math.floor(Math.random() * limit) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                answer = num1 * num2;
+                break;
+            case '/':
+                isDivision = true;
+                let divLimit = maxNum <= 20 ? 10 : (maxNum <= 50 ? 12 : 20);
+                num2 = Math.floor(Math.random() * divLimit) + 1;
+                answer = Math.floor(Math.random() * 10) + 1;
+                num1 = num2 * answer; // Ensure clean division
+                break;
+        }
+
+        const question = `${num1} ${isDivision ? '÷' : (op==='*'?'×':op)} ${num2} = ?`;
+        
+        // Generate Distractors
+        let options = new Set([answer]);
+        while(options.size < 4) {
+            let offset = Math.floor(Math.random() * 10) - 5;
+            if (offset === 0) offset = 2;
+            let fake = answer + offset;
+            if (fake >= 0) options.add(fake);
+        }
+
+        return {
+            question,
+            answer,
+            options: this.shuffleArray(Array.from(options))
+        };
+    }
+
+    static shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+}
+
+/**
+ * Game Engine per Player (Reusable for split screen)
+ */
+class PlayerEngine {
+    constructor(id, name, containerDiv, appRef) {
+        this.id = id;
+        this.name = name;
+        this.container = containerDiv;
+        this.app = appRef; // reference to main app to trigger global game over
+
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.timeLeft = 15;
+        this.timerInterval = null;
+        this.isGameOver = false;
+        this.currentQ = null;
+        this.isAnimating = false;
+
+        this.buildUI();
+        this.reset();
+    }
+
+    buildUI() {
+        let grassHTML = '';
+        for(let i=0; i<25; i++) {
+            grassHTML += '<div class="grass-blade"></div>';
+        }
+
+        this.container.innerHTML = `
+            <div class="player-panel" id="panel-${this.id}" style="width:100%; height:100%;">
+                <div class="hud">
+                    <div class="hud-left">
+                        <span class="player-label">${this.name}</span>
+                        <div class="timer-bar-container"><div class="timer-bar" id="timer-${this.id}"></div></div>
+                    </div>
+                    <div class="hud-right">
+                        <div class="lives" id="lives-${this.id}">❤️❤️❤️</div>
+                        <div class="score-box">Skor: <span id="score-${this.id}">0</span></div>
+                    </div>
+                </div>
+                <div class="game-area">
+                    <div class="question-box" id="qbox-${this.id}">Siap?</div>
+                    <div class="platforms-container" id="plats-${this.id}">
+                        <!-- Platforms go here -->
+                    </div>
+                    <div class="base-platform"></div>
+                    <img class="frog" id="frog-${this.id}" src="https://imgur.com/HFM86ME.png" alt="Frog">
+                    <div class="splash-layer" id="splash-${this.id}"></div>
+                    <div class="grass-layer">
+                        ${grassHTML}
+                    </div>
+                </div>
+                <!-- Game Over Modal Specific to this player -->
+                <div class="panel-modal hidden" id="modal-${this.id}">
+                    <h2 class="brand-font" style="font-size:2.5rem; color:#ef4444;">GAME OVER</h2>
+                    <p style="font-size:1.5rem; margin: 10px 0;">Skor Akhir: <span id="final-score-${this.id}" style="color:#fde047; font-weight:bold;">0</span></p>
+                    <p id="status-${this.id}"></p>
+                </div>
+            </div>
+        `;
+
+        this.el = {
+            timer: this.container.querySelector(`#timer-${this.id}`),
+            lives: this.container.querySelector(`#lives-${this.id}`),
+            score: this.container.querySelector(`#score-${this.id}`),
+            qbox: this.container.querySelector(`#qbox-${this.id}`),
+            plats: this.container.querySelector(`#plats-${this.id}`),
+            frog: this.container.querySelector(`#frog-${this.id}`),
+            splash: this.container.querySelector(`#splash-${this.id}`),
+            modal: this.container.querySelector(`#modal-${this.id}`),
+            finalScore: this.container.querySelector(`#final-score-${this.id}`),
+            status: this.container.querySelector(`#status-${this.id}`)
+        };
+    }
+
+    reset() {
+        this.score = 0;
+        this.lives = 3;
+        this.combo = 0;
+        this.isGameOver = false;
+        this.updateHUD();
+        this.el.modal.classList.add('hidden');
+        this.el.frog.style.transform = 'translate(0px, 0px) scale(1) rotate(0deg)';
+        this.el.frog.style.opacity = '1';
+        this.nextQuestion();
+    }
+
+    updateHUD() {
+        this.el.score.innerText = this.score;
+        this.el.lives.innerText = '❤️'.repeat(this.lives) + '🖤'.repeat(3 - this.lives);
+    }
+
+    startTimer() {
+        clearInterval(this.timerInterval);
+        this.timeLeft = 15;
+        this.el.timer.style.width = '100%';
+        this.el.timer.style.backgroundColor = 'var(--primary)';
+
+        this.timerInterval = setInterval(() => {
+            if(this.isAnimating) return; // Pause timer during animations
+            this.timeLeft -= 0.1;
+            const pct = (this.timeLeft / 15) * 100;
+            this.el.timer.style.width = `${pct}%`;
+
+            if(pct < 30) this.el.timer.style.backgroundColor = 'var(--danger)';
+            else if(pct < 60) this.el.timer.style.backgroundColor = '#f59e0b';
+
+            if(this.timeLeft <= 0) {
+                clearInterval(this.timerInterval);
+                this.handleAnswer(null, null); // Timeout
+            }
+        }, 100);
+    }
+
+    nextQuestion() {
+        if(this.isGameOver) return;
+        this.isAnimating = false;
+        this.currentQ = MathGenerator.generate(this.score);
+        this.el.qbox.innerText = this.currentQ.question;
+        
+        this.el.plats.innerHTML = '';
+        this.currentQ.options.forEach((opt, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'platform';
+            btn.innerText = opt;
+            btn.onclick = (e) => this.handleAnswer(opt, e.target);
+            this.el.plats.appendChild(btn);
+        });
+
+        // Reset frog position visually
+        this.el.frog.style.transition = 'none';
+        this.el.frog.style.transform = 'translate(0px, 0px)';
+        setTimeout(() => this.el.frog.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)', 50);
+
+        this.startTimer();
+    }
+
+    handleAnswer(answer, targetEl) {
+        if(this.isAnimating || this.isGameOver) return;
+        this.isAnimating = true;
+        clearInterval(this.timerInterval);
+
+        const isCorrect = answer === this.currentQ.answer;
+
+        // Disable all platforms
+        Array.from(this.el.plats.children).forEach(p => p.classList.add('disabled'));
+
+        if(isCorrect) {
+            sfx.jump();
+            // Move frog to target (Modifikasi Kalkulasi Koordinat X & Y)
+            if(targetEl) {
+                const fRect = this.el.frog.getBoundingClientRect();
+                const tRect = targetEl.getBoundingClientRect();
+                const diffY = tRect.top - fRect.top - 20;
+                const diffX = (tRect.left + tRect.width/2) - (fRect.left + fRect.width/2);
+                this.el.frog.style.transform = `translate(${diffX}px, ${diffY}px)`;
+                targetEl.classList.add('anim-glow');
+            }
+
+            this.combo++;
+            let pts = 10;
+            let popupText = "+10";
+            if(this.combo === 3) { pts += 20; popupText = "COMBO 3x! +30"; }
+            if(this.combo === 5) { pts += 50; popupText = "COMBO 5x! +60"; this.combo = 0; } // reset combo
+            
+            this.score += pts;
+            this.updateHUD();
+            this.showFloatingText(popupText, '#fde047');
+            this.createParticles(targetEl || this.el.frog, '⭐');
+            
+            setTimeout(() => sfx.correct(), 300);
+
+            setTimeout(() => {
+                this.nextQuestion();
+            }, 1200);
+
+        } else {
+            sfx.wrong();
+            this.combo = 0;
+            this.lives--;
+            this.updateHUD();
+
+            if(targetEl) targetEl.classList.add('wrong');
+            
+            // Frog Fall
+            this.el.frog.classList.add('anim-fall');
+            this.createSplash();
+
+            setTimeout(() => {
+                this.el.frog.classList.remove('anim-fall');
+                if(this.lives <= 0) {
+                    this.triggerGameOver();
+                } else {
+                    this.nextQuestion();
+                }
+            }, 1500);
+        }
+    }
+
+    createParticles(target, emoji) {
+        if(!target) return;
+        const rect = target.getBoundingClientRect();
+        const containerRect = this.container.getBoundingClientRect();
+        
+        for(let i=0; i<5; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.innerText = emoji;
+            p.style.left = (rect.left - containerRect.left + rect.width/2) + 'px';
+            p.style.top = (rect.top - containerRect.top) + 'px';
+            p.style.setProperty('--tx', `${(Math.random() - 0.5) * 100}px`);
+            p.style.setProperty('--ty', `${(Math.random() - 1) * 100}px`);
+            this.container.querySelector('.player-panel').appendChild(p);
+            setTimeout(() => p.remove(), 1000);
+        }
+    }
+
+    showFloatingText(text, color) {
+        const t = document.createElement('div');
+        t.className = 'floating-text';
+        t.innerText = text;
+        t.style.color = color;
+        // center in game area
+        t.style.top = '30%';
+        t.style.left = '50%';
+        t.style.transform = 'translate(-50%, -50%)';
+        this.el.plats.appendChild(t);
+        setTimeout(() => t.remove(), 1000);
+    }
+
+    createSplash() {
+        // Efek gelombang air (Ripple) ketika jatuh
+        for(let i=0; i<3; i++) {
+            setTimeout(() => {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                this.el.splash.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 1200);
+            }, i * 300);
+        }
+
+        // Efek hujan deras
+        for(let i=0; i<40; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'raindrop';
+            drop.style.left = `${Math.random() * 100}%`;
+            drop.style.animationDuration = `${0.3 + Math.random() * 0.3}s`;
+            drop.style.animationDelay = `${Math.random() * 0.4}s`;
+            this.el.splash.appendChild(drop);
+            setTimeout(() => drop.remove(), 1000);
+        }
+        // Water splash particles
+        this.createParticles(this.el.frog, '💧');
+    }
+
+    triggerGameOver() {
+        this.isGameOver = true;
+        clearInterval(this.timerInterval);
+        sfx.gameOver();
+        this.el.modal.classList.remove('hidden');
+        this.el.finalScore.innerText = this.score;
+        this.app.checkGlobalGameOver();
+    }
+}
+
+/**
+ * Main Application Manager
+ */
+class AppManager {
+    constructor() {
+        this.players = [];
+        this.mode = 'solo';
+        this.wrapper = document.getElementById('game-wrapper');
+        this.menu = document.getElementById('main-menu');
+        this.btnHome = document.getElementById('btn-home');
+        
+        this.setupGlobals();
+    }
+
+    setupGlobals() {
+        // Audio Toggle
+        const btnAudio = document.getElementById('btn-audio');
+        btnAudio.onclick = () => {
+            soundEnabled = !soundEnabled;
+            btnAudio.innerText = soundEnabled ? '🔊' : '🔈';
+            if(soundEnabled && audioCtx.state === 'suspended') audioCtx.resume();
+        };
+
+        // Fullscreen Toggle
+        const btnFs = document.getElementById('btn-fullscreen');
+        btnFs.onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+                btnFs.innerText = '✖';
+            } else {
+                document.exitFullscreen();
+                btnFs.innerText = '⛶';
+            }
+        };
+
+        // Home Button
+        this.btnHome.onclick = () => this.goHome();
+    }
+
+    startGame(mode) {
+        if(audioCtx.state === 'suspended') audioCtx.resume(); // Must be on user click
+
+        // Otomatis Fullscreen jika mode solo
+        if (mode === 'solo' && !document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.log(err));
+            document.getElementById('btn-fullscreen').innerText = '✖';
+        }
+
+        this.mode = mode;
+        this.players = [];
+        this.wrapper.innerHTML = '';
+        this.wrapper.className = `layout-${mode}`; // Set CSS Grid layout
+
+        this.menu.classList.add('hidden');
+        this.wrapper.classList.remove('hidden');
+        this.btnHome.classList.remove('hidden');
+
+        let numPlayers = 1;
+        let names = ['Player 1'];
+        if(mode === 'duel') { numPlayers = 2; names = ['Player 1', 'Player 2']; }
+        if(mode === 'squad') { numPlayers = 4; names = ['Player 1', 'Player 2', 'Player 3', 'Player 4']; }
+
+        for(let i=0; i<numPlayers; i++) {
+            const pDiv = document.createElement('div');
+            pDiv.style.position = 'relative';
+            this.wrapper.appendChild(pDiv);
+            const player = new PlayerEngine(i+1, names[i], pDiv, this);
+            this.players.push(player);
+        }
+    }
+
+    checkGlobalGameOver() {
+        const allDead = this.players.every(p => p.isGameOver);
+        if(allDead) {
+            // Determine winner in multiplayer
+            if(this.players.length > 1) {
+                let maxScore = -1;
+                let winners = [];
+                this.players.forEach(p => {
+                    if(p.score > maxScore) { maxScore = p.score; winners = [p.name]; }
+                    else if(p.score === maxScore) { winners.push(p.name); }
+                });
+                
+                let winText = winners.length > 1 ? "SERI!" : `${winners[0]} MENANG!`;
+                
+                // Show to all panels
+                this.players.forEach(p => {
+                    p.el.status.innerText = winText;
+                    if(winners.includes(p.name) && winners.length === 1) {
+                        p.el.status.style.color = '#4ade80';
+                    }
+                });
+            } else {
+                this.players[0].el.status.innerText = "Coba lagi ya!";
+            }
+        }
+    }
+
+    goHome() {
+        this.players.forEach(p => clearInterval(p.timerInterval));
+        this.players = [];
+        this.wrapper.classList.add('hidden');
+        this.menu.classList.remove('hidden');
+        this.btnHome.classList.add('hidden');
+    }
+}
+
+// Initialize App
+const app = new AppManager();
+
+// Handle responsive layout reflows on resize
+window.addEventListener('resize', () => {
+    // CSS handles most of it, but we can add specific JS logic here if needed
+});
+
+</script>
+</body>
+</html>
